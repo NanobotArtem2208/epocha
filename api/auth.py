@@ -50,7 +50,7 @@ async def login(
     if login == settings_login and password_hash == settings_password_hash:
         token = generate_token()
 
-        resp = RedirectResponse(url="/admin", status_code=status.HTTP_302_FOUND)
+        resp = RedirectResponse(url="/dashboard", status_code=status.HTTP_302_FOUND)
         resp.set_cookie(
             key="auth_token",
             value=token,
