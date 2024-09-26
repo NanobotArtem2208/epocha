@@ -78,6 +78,7 @@ class Reviews_schemas(BaseModel):
 class Category_schemas(BaseModel):
     ru_name: str
     en_name: str
+    address: str
     preCategory: List[int]
 
 
