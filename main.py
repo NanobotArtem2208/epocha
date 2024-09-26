@@ -51,13 +51,11 @@ async def root(request: Request, auth_token: Optional[str] = Cookie(None)):
     else:
         return templates.TemplateResponse("admin.html", {"request": request})
 
-
 @app.get("/dashboard")
 async def admin_panel(request: Request, auth_token: Optional[str] = Cookie(None)):
     if auth_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required"
-        )
+        return templates.TemplateResponse("index.html", {"request": request})  
     else:
         return templates.TemplateResponse("admin.html", {"request": request})
+
 
