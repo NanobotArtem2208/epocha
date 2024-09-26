@@ -82,6 +82,7 @@ class Category(Base):
     __tablename__ = "category"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    address: Mapped[str] = mapped_column(String(255))
     ru_name: Mapped[str] = mapped_column(String(255))
     en_name: Mapped[str] = mapped_column(String(255))
     preCategory: Mapped[list[int]] = mapped_column(JSON)
