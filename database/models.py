@@ -15,7 +15,6 @@ from sqlalchemy import (
     func
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from fastapi_users.db import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
 from sqlalchemy import Column, String, Boolean, Integer, TIMESTAMP, ForeignKey 
 
 
