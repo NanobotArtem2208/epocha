@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="https://unpkg.com/twinklecss@1.1.0/twinkle.min.css"/>
+    <style>
+        #errorMessage {
+            color: red;
+            display: block;
+            margin: 1rem auto;
+            width: fit-content;
+        }
+    </style>
 </head>
 <body>
     <div class="flex p-4 m-6 justify-center">
-        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md" method="POST" action="/auth/login" >
+        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md" method="POST" action="/auth/login" onsubmit="return validateForm()">
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
               Login 
@@ -26,7 +34,33 @@
               Sign In
             </button>
           </div>
+          <!-- Ошибка будет показана здесь -->
+          <p id="errorMessage"></p>
         </form>
       </div>
 </body>
+<script>
+function validateForm() {
+    const form = document.querySelector('form');
+    
+    // Отправка формы
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form)
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if ('detail' in data && data['detail'] === 'Invalid login or password') {
+            document.getElementById('errorMessage').innerText = 'Неверный логин или пароль';
+        } else {
+            window.location.href = '/dashboard'; // Переход на другую страницу после успешного входа
+        }
+    })
+    .catch(() => {
+        window.location.href = '/dashboard'
+    });
+    
+    return false; // Предотвращаем стандартное поведение формы (отправка без AJAX)
+}
+</script>
 </html>
