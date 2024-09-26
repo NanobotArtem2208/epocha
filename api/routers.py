@@ -442,12 +442,13 @@ async def create_categories(
     categories: List[Category_schemas] = Body(...),
     session: AsyncSession = Depends(get_async_session),
 ):
-    # try:
+    try:
         category_data = [
             {
                 "id": random_id(104),
                 "en_name": category.en_name,
                 "ru_name": category.ru_name,
+                "address": category.address,
                 "preCategory": category.preCategory,
             }
             for category in categories
@@ -456,8 +457,8 @@ async def create_categories(
         await session.execute(stmt.values(category_data))
         await session.commit()
         return {"message": "Categories created successfully"}
-# except Exception as e:
-# raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post(
@@ -711,6 +712,7 @@ async def update_categories(
         update_data = {
             "en_name": category.en_name,
             "ru_name": category.ru_name,
+            "address": category.address,
             "preCategory": category.preCategory,
         }
         stmt = update(Category).where(Category.id == category_id).values(update_data)
