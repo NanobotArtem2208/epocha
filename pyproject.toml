@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "armax-era-backend"
+version = "0.1.0"
+description = ""
+authors = ["NanobotArtem2208 <astramoda30@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.3"
+sqlalchemy = "^2.0.29"
+uvicorn = "^0.29.0"
+python-dotenv = "^1.0.1"
+httpx = "^0.27.2"
+curl-fetch2py = "^0.1"
+pydantic-settings = "^2.5.2"
+jinja2 = "^3.1.4"
+fastapi-login = "^1.10.2"
+asyncpg = "^0.29.0"
+opencv-python = "^4.10.0.84"
+numpy = "^2.1.1"
+python-multipart = "0.0.9"
+fastapi_users = "^13.0.0"
+fastapi-cache2 = "^0.2.2"
+redis = "^5.0.8"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+

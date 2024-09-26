@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/static/css/main.26fb70ee.css",
+    "main.js": "/static/js/main.d7820705.js",
+    "static/js/453.4ed14720.chunk.js": "/static/js/453.4ed14720.chunk.js",
+    "static/media/mont_extralightdemo.ttf": "/static/media/mont_extralightdemo.95f9f2b417055e079328.ttf",
+    "static/media/AcciaSans-Regular.ttf": "/static/media/AcciaSans-Regular.9bcca3c53bb6ee49b660.ttf",
+    "static/media/logo.png": "/static/media/logo.2a6cc7c2a6fe6683e6c3.png",
+    "index.html": "/index.html",
+    "main.26fb70ee.css.map": "/static/css/main.26fb70ee.css.map",
+    "main.d7820705.js.map": "/static/js/main.d7820705.js.map",
+    "453.4ed14720.chunk.js.map": "/static/js/453.4ed14720.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.26fb70ee.css",
+    "static/js/main.d7820705.js"
+  ]
+}

@@ -1,0 +1,414 @@
+{
+  "Products": [
+    {
+      "id": 0,
+
+      "ru_name": {
+        "name": "Аура Белли Банд",
+        "desc": "Пригласительный билет на мероприятие «Аура Итальяно Банд» представляет собой красочный буклет, выполненный в ярких итальянских цветах: красном, зелёном и белом. На обложке изображены традиционные итальянские символы: виноградная лоза, оливковое дерево и веер. Внутри буклета содержится информация о мероприятии: дата, время и место проведения, а также краткое описание программы вечера. Кроме того, в буклете есть отрывной корешок, который служит подтверждением регистрации гостя на мероприятие."
+      },
+
+      "en_name": {
+        "name": "Aura Belly Band",
+        "desc": "The invitation card to the Aura Italiano Band event is a colorful booklet made in bright Italian colors: red, green and white. The cover features traditional Italian symbols: a vine, an olive tree and a fan. The booklet contains information about the event: date, time and location, as well as a brief description of the evening's program. In addition, the booklet has a tear-off spine that serves as confirmation of the guest's registration for the event."
+      },
+      "images": [
+        "https://foreverpaperco.co.uk/cdn/shop/files/WM002DLWNTMU_2_b4067982-3a5e-420d-8b41-10b05a6a6e07.jpg?v=1723202143&width=990",
+        "https://foreverpaperco.co.uk/cdn/shop/files/UCS002MU_1.jpg?v=1723376109&width=990"
+      ],
+      "isFrom": true,
+      "preCategory": {
+        "adress": "business_cards",
+        "ru_name": "Визитки",
+        "en_name": "Business cards"
+      },
+      "price": 35,
+      "options": {
+        "isForm": true,
+        "isColor": false,
+        "form": [
+          {
+            "id": 0,
+            "name": { "en_name": "Rectangle", "ru_name": "Квадратный" },
+            "changeForm": null,
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722000509177_rectanglegocm.jpg"
+          },
+          {
+            "id": 1,
+            "name": {
+              "en_name": "Rounded Corners",
+              "ru_name": "Скругленные углы"
+            },
+
+            "changeForm": 15.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001056633_roundedcornerstwtzt.jpg"
+          },
+          {
+            "id": 2,
+            "name": { "en_name": "Wave", "ru_name": "Волны" },
+
+            "changeForm": 50.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001000023_waveuwwvw.jpg"
+          },
+          {
+            "id": 3,
+            "name": { "en_name": "Double Arch", "ru_name": "Полукруглый" },
+
+            "changeForm": 25.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722003037530_doublearchlirof.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": 1,
+
+      "ru_name": {
+        "name": "Аура Франс Бонжур",
+        "desc": "Пригласительный билет на мероприятие «Аура Итальяно Банд» представляет собой красочный буклет, выполненный в ярких итальянских цветах: красном, зелёном и белом. На обложке изображены традиционные итальянские символы: виноградная лоза, оливковое дерево и веер. Внутри буклета содержится информация о мероприятии: дата, время и место проведения, а также краткое описание программы вечера. Кроме того, в буклете есть отрывной корешок, который служит подтверждением регистрации гостя на мероприятие."
+      },
+
+      "en_name": {
+        "name": "Aura France Bonjour",
+        "desc": "The invitation card to the Aura Italiano Band event is a colorful booklet made in bright Italian colors: red, green and white. The cover features traditional Italian symbols: a vine, an olive tree and a fan. The booklet contains information about the event: date, time and location, as well as a brief description of the evening's program. In addition, the booklet has a tear-off spine that serves as confirmation of the guest's registration for the event."
+      },
+      "images": [
+        "https://foreverpaperco.co.uk/cdn/shop/files/RST002_1.jpg?v=1723378553&width=990",
+        "https://foreverpaperco.co.uk/cdn/shop/files/RST002_1.jpg?v=1723378553&width=990"
+      ],
+      "isFrom": false,
+      "preCategory": {
+        "adress": "leaflets",
+        "ru_name": "Листовки",
+        "en_name": "Leaflets"
+      },
+      "price": 25,
+      "options": {
+        "isForm": true,
+        "isColor": true,
+        "form": [
+          {
+            "id": 0,
+            "name": { "en_name": "Rectangle", "ru_name": "Квадратный" },
+            "changeForm": null,
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722000509177_rectanglegocm.jpg"
+          },
+          {
+            "id": 1,
+            "name": {
+              "en_name": "Rounded Corners",
+              "ru_name": "Скругленные углы"
+            },
+
+            "changeForm": 15.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001056633_roundedcornerstwtzt.jpg"
+          },
+          {
+            "id": 2,
+            "name": { "en_name": "Wave", "ru_name": "Волны" },
+
+            "changeForm": 50.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001000023_waveuwwvw.jpg"
+          },
+          {
+            "id": 3,
+            "name": { "en_name": "Double Arch", "ru_name": "Полукруглый" },
+
+            "changeForm": 25.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722003037530_doublearchlirof.jpg"
+          }
+        ],
+        "color": [
+          {
+            "id": 0,
+            "name": { "en_name": "White", "ru_name": "Белый" },
+            "rgb": "#e4edf3"
+          },
+          {
+            "id": 1,
+            "name": { "en_name": "Black", "ru_name": "Черный" },
+            "rgb": "#15355a"
+          },
+          {
+            "id": 2,
+            "name": { "en_name": "Green", "ru_name": "Зеленый" },
+            "rgb": "#0a4644"
+          },
+          {
+            "id": 3,
+            "name": { "en_name": "Yellow", "ru_name": "Желтый" },
+            "rgb": "#ffd700"
+          }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "ru_name": {
+        "name": "Аура Итальяно Банд",
+        "desc": "Пригласительный билет на мероприятие «Аура Итальяно Банд» представляет собой красочный буклет, выполненный в ярких итальянских цветах: красном, зелёном и белом. На обложке изображены традиционные итальянские символы: виноградная лоза, оливковое дерево и веер. Внутри буклета содержится информация о мероприятии: дата, время и место проведения, а также краткое описание программы вечера. Кроме того, в буклете есть отрывной корешок, который служит подтверждением регистрации гостя на мероприятие."
+      },
+
+      "en_name": {
+        "name": "Aura Italiano Band",
+        "desc": "The invitation card to the Aura Italiano Band event is a colorful booklet made in bright Italian colors: red, green and white. The cover features traditional Italian symbols: a vine, an olive tree and a fan. The booklet contains information about the event: date, time and location, as well as a brief description of the evening's program. In addition, the booklet has a tear-off spine that serves as confirmation of the guest's registration for the event."
+      },
+      "images": [
+        "https://foreverpaperco.co.uk/cdn/shop/files/UCS002MU_1.jpg?v=1723376109&width=990",
+        "https://foreverpaperco.co.uk/cdn/shop/files/UCS002MU_1.jpg?v=1723376109&width=990"
+      ],
+      "isFrom": false,
+      "preCategory": {
+        "adress": "notepads",
+        "ru_name": "Блокноты",
+        "en_name": "Notepads"
+      },
+      "price": 65
+    },
+    {
+      "id": 4,
+      "ru_name": {
+        "name": "Аура Белли",
+        "desc": "Пригласительный билет на мероприятие «Аура Итальяно Банд» представляет собой красочный буклет, выполненный в ярких итальянских цветах: красном, зелёном и белом. На обложке изображены традиционные итальянские символы: виноградная лоза, оливковое дерево и веер. Внутри буклета содержится информация о мероприятии: дата, время и место проведения, а также краткое описание программы вечера. Кроме того, в буклете есть отрывной корешок, который служит подтверждением регистрации гостя на мероприятие."
+      },
+
+      "en_name": {
+        "name": "Aura Belly",
+        "desc": "The invitation card to the Aura Italiano Band event is a colorful booklet made in bright Italian colors: red, green and white. The cover features traditional Italian symbols: a vine, an olive tree and a fan. The booklet contains information about the event: date, time and location, as well as a brief description of the evening's program. In addition, the booklet has a tear-off spine that serves as confirmation of the guest's registration for the event."
+      },
+      "images": [
+        "https://foreverpaperco.co.uk/cdn/shop/files/EL002MU_1.jpg?v=1723398026&width=990",
+        "https://foreverpaperco.co.uk/cdn/shop/files/EL002MU_1.jpg?v=1723398026&width=990"
+      ],
+      "isFrom": true,
+      "preCategory": {
+        "adress": "printing_on_pens",
+        "ru_name": "Печать на ручках",
+        "en_name": "Printing on pens"
+      },
+      "price": 15,
+      "options": {
+        "isForm": true,
+        "isColor": false,
+        "form": [
+          {
+            "id": 0,
+            "name": { "en_name": "Rectangle", "ru_name": "Квадратный" },
+            "changeForm": null,
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722000509177_rectanglegocm.jpg"
+          },
+          {
+            "id": 1,
+            "name": {
+              "en_name": "Rounded Corners",
+              "ru_name": "Скругленные углы"
+            },
+
+            "changeForm": 15.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001056633_roundedcornerstwtzt.jpg"
+          },
+          {
+            "id": 2,
+            "name": { "en_name": "Wave", "ru_name": "Волны" },
+
+            "changeForm": 50.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001000023_waveuwwvw.jpg"
+          },
+          {
+            "id": 3,
+            "name": { "en_name": "Double Arch", "ru_name": "Полукруглый" },
+
+            "changeForm": 25.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722003037530_doublearchlirof.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "ru_name": {
+        "name": "Аура Белли Банд",
+        "desc": "Пригласительный билет на мероприятие «Аура Итальяно Банд» представляет собой красочный буклет, выполненный в ярких итальянских цветах: красном, зелёном и белом. На обложке изображены традиционные итальянские символы: виноградная лоза, оливковое дерево и веер. Внутри буклета содержится информация о мероприятии: дата, время и место проведения, а также краткое описание программы вечера. Кроме того, в буклете есть отрывной корешок, который служит подтверждением регистрации гостя на мероприятие."
+      },
+
+      "en_name": {
+        "name": "Aura Belly Band",
+        "desc": "The invitation card to the Aura Italiano Band event is a colorful booklet made in bright Italian colors: red, green and white. The cover features traditional Italian symbols: a vine, an olive tree and a fan. The booklet contains information about the event: date, time and location, as well as a brief description of the evening's program. In addition, the booklet has a tear-off spine that serves as confirmation of the guest's registration for the event."
+      },
+      "images": [
+        "https://foreverpaperco.co.uk/cdn/shop/files/WM002DLWNTMU_2_b4067982-3a5e-420d-8b41-10b05a6a6e07.jpg?v=1723202143&width=990",
+        "https://foreverpaperco.co.uk/cdn/shop/files/WM002DLWNTMU_2_b4067982-3a5e-420d-8b41-10b05a6a6e07.jpg?v=1723202143&width=990"
+      ],
+      "isFrom": true,
+      "price": 35,
+      "preCategory": {
+        "adress": "weddings",
+        "ru_name": "Свадьбы",
+        "en_name": "Weddings"
+      },
+      "options": {
+        "isForm": true,
+        "isColor": false,
+        "form": [
+          {
+            "id": 0,
+            "name": { "en_name": "Rectangle", "ru_name": "Квадратный" },
+            "changeForm": null,
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722000509177_rectanglegocm.jpg"
+          },
+          {
+            "id": 1,
+            "name": {
+              "en_name": "Rounded Corners",
+              "ru_name": "Скругленные углы"
+            },
+
+            "changeForm": 15.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001056633_roundedcornerstwtzt.jpg"
+          },
+          {
+            "id": 2,
+            "name": { "en_name": "Wave", "ru_name": "Волны" },
+
+            "changeForm": 50.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001000023_waveuwwvw.jpg"
+          },
+          {
+            "id": 3,
+            "name": { "en_name": "Double Arch", "ru_name": "Полукруглый" },
+
+            "changeForm": 25.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722003037530_doublearchlirof.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "ru_name": {
+        "name": "Аура Франс Бонжур",
+        "desc": ""
+      },
+
+      "en_name": {
+        "name": "Aura France Bonjour",
+        "desc": "The invitation card to the Aura Italiano Band event is a colorful booklet made in bright Italian colors: red, green and white. The cover features traditional Italian symbols: a vine, an olive tree and a fan. The booklet contains information about the event: date, time and location, as well as a brief description of the evening's program. In addition, the booklet has a tear-off spine that serves as confirmation of the guest's registration for the event."
+      },
+      "images": [
+        "https://foreverpaperco.co.uk/cdn/shop/files/RST002_1.jpg?v=1723378553&width=990",
+        "https://foreverpaperco.co.uk/cdn/shop/files/RST002_1.jpg?v=1723378553&width=990"
+      ],
+      "isFrom": false,
+      "price": 25,
+      "preCategory": {
+        "adress": "anniversaries",
+        "ru_name": "Юбилеи",
+        "en_name": "Anniversaries"
+      },
+      "options": {
+        "isForm": true,
+        "isColor": false,
+        "form": [
+          {
+            "id": 0,
+            "name": { "en_name": "Rectangle", "ru_name": "Квадратный" },
+            "changeForm": null,
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722000509177_rectanglegocm.jpg"
+          },
+          {
+            "id": 1,
+            "name": {
+              "en_name": "Rounded Corners",
+              "ru_name": "Скругленные углы"
+            },
+
+            "changeForm": 15.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001056633_roundedcornerstwtzt.jpg"
+          },
+          {
+            "id": 2,
+            "name": { "en_name": "Wave", "ru_name": "Волны" },
+
+            "changeForm": 50.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722001000023_waveuwwvw.jpg"
+          },
+          {
+            "id": 3,
+            "name": { "en_name": "Double Arch", "ru_name": "Полукруглый" },
+
+            "changeForm": 25.0,
+
+            "image": "https://product-options-img.avisplus.io/56355389499/56355389499_1722003037530_doublearchlirof.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "ru_name": {
+        "name": "Аура Итальяно Банд",
+        "desc": "Пригласительный билет на мероприятие «Аура Итальяно Банд» представляет собой красочный буклет, выполненный в ярких итальянских цветах: красном, зелёном и белом. На обложке изображены традиционные итальянские символы: виноградная лоза, оливковое дерево и веер. Внутри буклета содержится информация о мероприятии: дата, время и место проведения, а также краткое описание программы вечера. Кроме того, в буклете есть отрывной корешок, который служит подтверждением регистрации гостя на мероприятие."
+      },
+
+      "en_name": {
+        "name": "Aura Italiano Band",
+        "desc": "The invitation card to the Aura Italiano Band event is a colorful booklet made in bright Italian colors: red, green and white. The cover features traditional Italian symbols: a vine, an olive tree and a fan. The booklet contains information about the event: date, time and location, as well as a brief description of the evening's program. In addition, the booklet has a tear-off spine that serves as confirmation of the guest's registration for the event."
+      },
+      "images": [
+        "https://foreverpaperco.co.uk/cdn/shop/files/UCS002MU_1.jpg?v=1723376109&width=990",
+        "https://foreverpaperco.co.uk/cdn/shop/files/UCS002MU_1.jpg?v=1723376109&width=990"
+      ],
+      "isFrom": false,
+      "price": 65,
+      "preCategory": {
+        "adress": "sticker_printing",
+        "ru_name": "Печать наклеек",
+        "en_name": "Sticker printing"
+      },
+      "options": {
+        "isForm": false,
+        "isColor": false
+      }
+    }
+  ],
+  "category": [
+    {
+      "id": 0,
+      "ru_name": "Цифровая печать",
+      "en_name": "Digital printing",
+      "preCategory": []
+    },
+    {
+      "id": 1,
+      "ru_name": "Ультрафиолетовая печать",
+      "en_name": "Ultraviolet printing",
+      "preCategory": []
+    },
+    {
+      "id": 2,
+      "ru_name": "Интерьерная печать",
+      "en_name": "Interior printing",
+      "preCategory": []
+    },
+    {
+      "id": 3,
+      "ru_name": "Печать для мероприятий",
+      "en_name": "Event printing",
+      "preCategory": []
+    }
+  ]
+}
