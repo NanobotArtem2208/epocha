@@ -52,7 +52,7 @@ async def root(request: Request, auth_token: Optional[str] = Cookie(None)):
         return templates.TemplateResponse("admin.html", {"request": request})
 
 
-@app.get("/admin")
+@app.get("/dashboard")
 async def admin_panel(request: Request, auth_token: Optional[str] = Cookie(None)):
     if auth_token is None:
         raise HTTPException(
