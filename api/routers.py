@@ -151,7 +151,6 @@ async def get_reviews(session: AsyncSession = Depends(get_async_session)):
 
     return reviews
 
-
 @router.get(
     "/category",
     summary="Получение всех категорий",
@@ -161,7 +160,7 @@ async def get_reviews(session: AsyncSession = Depends(get_async_session)):
 async def get_category(session: AsyncSession = Depends(get_async_session)):
     try:
         category_stmt = select(
-            Category.id, Category.ru_name, Category.en_name, Category.preCategory
+            Category.id, Category.ru_name, Category.en_name, Category.address, Category.preCategory
         )
         category_result = await session.execute(category_stmt)
 
@@ -190,6 +189,7 @@ async def get_category(session: AsyncSession = Depends(get_async_session)):
                 "id": row.id,
                 "ru_name": row.ru_name,
                 "en_name": row.en_name,
+                "address": row.address,
                 "preCategory": preCategories,
             }
             categories.append(category)
@@ -197,7 +197,6 @@ async def get_category(session: AsyncSession = Depends(get_async_session)):
         return categories
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get(
     "/preCategory",
