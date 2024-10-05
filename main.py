@@ -27,9 +27,6 @@ app = FastAPI(title="Epocha Admin Panel", on_startup=[on_startup])
 templates = Jinja2Templates(directory="web/templates")
 app.mount("/static", StaticFiles(directory=rf"{settings.STATIC_FOLDER}"), name="static")
 
-
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
