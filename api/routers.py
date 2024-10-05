@@ -125,6 +125,10 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
         }
         products.append(product)
 
+    
+    if products == []:
+        raise HTTPException(status_code=404, detail="Products not found")
+    
     return {"Products": products}
 
 
