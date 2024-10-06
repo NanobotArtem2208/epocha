@@ -53,11 +53,11 @@ function validateForm() {
         if ('detail' in data && data['detail'] === 'Invalid login or password') {
             document.getElementById('errorMessage').innerText = 'Неверный логин или пароль';
         } else {
-            window.location.href = '/dashboard'; // Переход на другую страницу после успешного входа
+            window.location.href = '/'; // Переход на другую страницу после успешного входа
         }
     })
     .catch(() => {
-        window.location.href = '/dashboard'
+        window.location.href = '/'
     });
     
     return false; // Предотвращаем стандартное поведение формы (отправка без AJAX)
