@@ -45,7 +45,7 @@ router = APIRouter(prefix="/api", tags=["api"])
 )
 async def get_products(session: AsyncSession = Depends(get_async_session)):
     async with session:
-        try:
+        # try:
             products_stmt = select(
                 Products.id,
                 Products.ru_name_name,
@@ -123,8 +123,8 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
             if not products:
                 raise HTTPException(status_code=404, detail="Products not found")
             return {"Products": products}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        # except Exception as e:
+            # raise HTTPException(status_code=500, detail=str(e))
 
 @router.get(
     "/reviews",

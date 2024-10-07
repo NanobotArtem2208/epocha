@@ -48,11 +48,11 @@ async def root(request: Request, auth_token: Optional[str] = Cookie(None)):
     else:
         return templates.TemplateResponse("admin.html", {"request": request})
 
-@app.get("/dashboard")
-async def admin_panel(request: Request, auth_token: Optional[str] = Cookie(None)):
-    if auth_token is None:
-        return templates.TemplateResponse("index.html", {"request": request})  
-    else:
-        return templates.TemplateResponse("admin.html", {"request": request})
+# @app.get("/dashboard")
+# async def admin_panel(request: Request, auth_token: Optional[str] = Cookie(None)):
+    # if auth_token is None:
+        # return templates.TemplateResponse("index.html", {"request": request})  
+    # else:
+        # return templates.TemplateResponse("admin.html", {"request": request})
 
 

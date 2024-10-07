@@ -5,3 +5,4 @@ To start the application:
 Команда сборки:
 <!-- apt-get update && apt-get install -y libgl1 && pip install -r requirements.txt && pip install python-dotenv && pip install uvicorn && pip install opencv-python -->
 
+<!-- ngrok tunnel --label edge=edghts_2e99fhIZiOgao09G4cV0xGXmzEh http://localhost:8000 -->
