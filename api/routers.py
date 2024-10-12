@@ -1,10 +1,11 @@
 import uuid
+import asyncio
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
 from fastapi_cache.backends.redis import RedisBackend
 
-from fastapi import APIRouter, Depends, Body, HTTPException
+from fastapi import APIRouter, Depends, Body, HTTPException, File, UploadFile
 from sqlalchemy import select, insert, update, text, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import and_
@@ -26,7 +27,7 @@ from .schemas import (
     Form_schemas,
     Category_schemas,
     PreCategorySchema,
-    ProductSchemaPatch,
+    
     Form_schemas_patch,
 )
 from .utils import save_img, random_id, get_static_img_url
@@ -45,31 +46,37 @@ router = APIRouter(prefix="/api", tags=["api"])
 )
 async def get_products(session: AsyncSession = Depends(get_async_session)):
     async with session:
-        # try:
-            products_stmt = select(
-                Products.id,
-                Products.ru_name_name,
-                Products.ru_name_desc,
-                Products.en_name_name,
-                Products.en_name_desc,
-                Products.images,
-                Products.isFrom,
-                Products.preCategory_address,
-                Products.preCategory_ru_name,
-                Products.preCategory_en_name,
-                Products.price,
-                Products.options_isForm,
-                Products.options_isColor,
-                Products.options_formId,
-                Products.options_colorId,
-            )
-            color_stmt = select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)
-            form_stmt = select(
-                Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
-            )
-            products_result = await session.execute(products_stmt)
-            color_result = await session.execute(color_stmt)
-            form_result = await session.execute(form_stmt)
+       
+        try:
+            # Создаем список асинхронных запросов
+            tasks = [
+                session.execute(select(
+                    Products.id,
+                    Products.ru_name_name,
+                    Products.ru_name_desc,
+                    Products.en_name_name,
+                    Products.en_name_desc,
+                    Products.images,
+                    Products.isFrom,
+                    Products.preCategory_address,
+                    Products.preCategory_ru_name,
+                    Products.preCategory_en_name,
+                    Products.price,
+                    Products.options_isForm,
+                    Products.options_isColor,
+                    Products.options_formId,
+                    Products.options_colorId,
+                )),
+                session.execute(select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)),
+                session.execute(select(
+                    Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
+                )),
+            ]
+
+            # Выполняем все запросы одновременно
+            products_result, color_result, form_result = await asyncio.gather(*tasks)
+
+        
             color_data = {
                 row[0]: {"id": row[0], "ru_name": row[1], "en_name": row[2], "rgb": row[3]}
                 for row in color_result.all()
@@ -123,8 +130,8 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
             if not products:
                 raise HTTPException(status_code=404, detail="Products not found")
             return {"Products": products}
-        # except Exception as e:
-            # raise HTTPException(status_code=500, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
 @router.get(
     "/reviews",
@@ -284,7 +291,6 @@ async def get_forms(session: AsyncSession = Depends(get_async_session)):
 #
 # =====post запросы=====
 #
-
 
 @router.post(
     "/products",
@@ -632,40 +638,58 @@ async def delete_precategories(
 #
 # =====patch запросы=====
 #
+
+
 @router.patch(
     "/products/{product_id}",
-    summary="Обновление продуктов",
-    description="Обновляет продукты в таблице Products по их id",
+    summary="Update product",
+    description="Update a product in the Products table by its id",
     status_code=200,
 )
 async def update_products(
     product_id: int,
-    product: ProductSchemaPatch = Body(...),
+    product: ProductSchema = Body(...),
     session: AsyncSession = Depends(get_async_session),
 ):
     async with session:
         try:
-            update_data = {
-                "ru_name_name": product.ru_name.name,
-                "ru_name_desc": product.ru_name.desc,
-                "en_name_name": product.en_name.name,
-                "en_name_desc": product.en_name.desc,
-                "isFrom": product.isFrom,
-                "preCategory_address": product.preCategory.address,
-                "preCategory_ru_name": product.preCategory.ru_name,
-                "preCategory_en_name": product.preCategory.en_name,
-                "price": product.price,
-                "options_isForm": product.options.isForm,
-                "options_isColor": product.options.isColor,
-                "options_formId": product.options.form_ids,
-                "options_colorId": product.options.color_ids,
-            }
-            stmt = update(Products).where(Products.id == product_id).values(update_data)
-            await session.execute(stmt)
+            # Get the existing product
+            existing_product = await session.get(Products, product_id)
+            if not existing_product:
+                raise HTTPException(status_code=404, detail="Product not found")
+
+            # Update the product details
+            existing_product.ru_name_name = product.ru_name.name
+            existing_product.ru_name_desc = product.ru_name.desc
+            existing_product.en_name_name = product.en_name.name
+            existing_product.en_name_desc = product.en_name.desc
+            existing_product.isFrom = product.isFrom
+            existing_product.preCategory_address = product.preCategory.address
+            existing_product.preCategory_ru_name = product.preCategory.ru_name
+            existing_product.preCategory_en_name = product.preCategory.en_name
+            existing_product.price = product.price
+            existing_product.options_isForm = product.options.isForm
+            existing_product.options_isColor = product.options.isColor
+            existing_product.options_formId = product.options.form_ids
+            existing_product.options_colorId = product.options.color_ids
+            images = product.images
+
+            # Update or add new images
+            if images:
+                for i, img in enumerate(images):
+                    img_path = (
+                        rf"{settings.STATIC_FOLDER}/img/{product_id}_{i}_product.png"
+                    )
+                    img_path_url = rf"static/img/{product_id}_{i}_product.png"
+                    await save_img(await img.read(), img_path)
+                    existing_product.images.append(img_path_url)
+
             await session.commit()
             return {"message": "Product updated successfully"}
+
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.patch(
     "/reviews/{review_id}",

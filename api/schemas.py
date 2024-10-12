@@ -31,14 +31,6 @@ class ProductSchema(BaseModel):
     options: OptionsSchema
 
 
-class ProductSchemaPatch(BaseModel):
-    ru_name: ProductNameSchema
-    en_name: ProductNameSchema
-    isFrom: bool
-    preCategory: PreCategorySchema
-    price: float
-    options: OptionsSchema
-
 
 class lanNameSchemas(BaseModel):
     en_name: str
