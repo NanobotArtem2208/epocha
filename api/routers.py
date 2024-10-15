@@ -48,23 +48,43 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
 
     try:
         async with session.begin():
-            products_result = await session.execute(select(
-                                                        Products.id,
-                                                        Products.ru_name_name,
-                                                        Products.ru_name_desc,
-                                                        Products.en_name_name,
-                                                        Products.en_name_desc,
-                                                        Products.images,
-                                                        Products.isFrom,
-                                                        Products.preCategory_address,
-                                                        Products.preCategory_ru_name,
-                                                        Products.preCategory_en_name,
-                                                        Products.price,
-                                                        Products.options_isForm,
-                                                        Products.options_isColor,
-                                                        Products.options_formId,
-                                                        Products.options_colorId,
-                                                    )),
+            products_result = (
+                await session.execute(
+                    select(
+                        Products.id,
+                        Products.ru_name_name,
+                        Products.ru_name_desc,
+                        Products.en_name_name,
+                        Products.en_name_desc,
+                        Products.images,
+                        Products.isFrom,
+                        Products.preCategory_address,
+                        Products.preCategory_ru_name,
+                        Products.preCategory_en_name,
+                        Products.price,
+                        Products.options_isForm,
+                        Products.options_isColor,
+                        Products.options_formId,
+                        Products.options_colorId,
+                    ).with_entities(
+                        Products.id,
+                        Products.ru_name_name,
+                        Products.ru_name_desc,
+                        Products.en_name_name,
+                        Products.en_name_desc,
+                        Products.images,
+                        Products.isFrom,
+                        Products.preCategory_address,
+                        Products.preCategory_ru_name,
+                        Products.preCategory_en_name,
+                        Products.price,
+                        Products.options_isForm,
+                        Products.options_isColor,
+                        Products.options_formId,
+                        Products.options_colorId,
+                    )
+                ),
+            )
             color_result =   await session.execute(select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)),
 
             form_result =  await session.execute(select(
@@ -73,7 +93,7 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
 
             color_data = {
                     row[0]: {"id": row[0], "ru_name": row[1], "en_name": row[2], "rgb": row[3]}
-                    for row in color_result.all()
+                    for row in color_result
                 }
             form_data = {
                     row[0]: {
@@ -83,10 +103,10 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
                         "changeForm": row[3],
                         "image": await get_static_img_url(row[4]),
                     }
-                    for row in form_result.all()
+                    for row in form_result
                 }
             products = []
-            for row in products_result.all():
+            for row in products_result:
                 form_ids = [int(id_) for id_ in row[13]] if row[13] else []
                 color_ids = [int(id_) for id_ in row[14]] if row[14] else []
                 form_data_ = []
