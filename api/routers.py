@@ -45,7 +45,7 @@ router = APIRouter(prefix="/api", tags=["api"])
     status_code=200,
 )
 async def get_products(session: AsyncSession = Depends(get_async_session)):
-    async with session.begin():
+    async with session.begin_nested():
        
         try:
             # Создаем список асинхронных запросов
