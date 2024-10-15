@@ -66,7 +66,23 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
                         Products.options_isColor,
                         Products.options_formId,
                         Products.options_colorId,
-                    )            
+                    )._set_entities(
+                        Products.id,
+                        Products.ru_name_name,
+                        Products.ru_name_desc,
+                        Products.en_name_name,
+                        Products.en_name_desc,
+                        Products.images,
+                        Products.isFrom,
+                        Products.preCategory_address,
+                        Products.preCategory_ru_name,
+                        Products.preCategory_en_name,
+                        Products.price,
+                        Products.options_isForm,
+                        Products.options_isColor,
+                        Products.options_formId,
+                        Products.options_colorId,
+                    )
                 ),
             )
             color_result =   await session.execute(select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)),
