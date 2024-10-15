@@ -6,14 +6,14 @@ from fastapi_cache.decorator import cache
 from fastapi_cache.backends.redis import RedisBackend
 
 from fastapi import APIRouter, Depends, Body, HTTPException, File, UploadFile
-from sqlalchemy import select, insert, update, text, delete
+from sqlalchemy import select, insert, update, text, delete, join
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import and_
 from sqlalchemy import case
 from sqlalchemy.sql.expression import null
 from sqlalchemy.sql import bindparam
 from sqlalchemy.exc import SQLAlchemyError
-from typing import Any, List, Optional, Dict
+from typing import Any, List, Optional, Dict, Tuple
 
 from database.session import get_async_session
 from database.models import Products, Reviews, Colors, Forms, Category, preCategory
@@ -45,7 +45,7 @@ router = APIRouter(prefix="/api", tags=["api"])
     status_code=200,
 )
 async def get_products(session: AsyncSession = Depends(get_async_session)):
-    async with session:
+    async with session.begin():
        
         try:
             # Создаем список асинхронных запросов
