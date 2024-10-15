@@ -45,52 +45,46 @@ router = APIRouter(prefix="/api", tags=["api"])
     status_code=200,
 )
 async def get_products(session: AsyncSession = Depends(get_async_session)):
-    async with session.begin_nested():
-       
-        try:
-            # Создаем список асинхронных запросов
-            tasks = [
-                session.execute(select(
-                    Products.id,
-                    Products.ru_name_name,
-                    Products.ru_name_desc,
-                    Products.en_name_name,
-                    Products.en_name_desc,
-                    Products.images,
-                    Products.isFrom,
-                    Products.preCategory_address,
-                    Products.preCategory_ru_name,
-                    Products.preCategory_en_name,
-                    Products.price,
-                    Products.options_isForm,
-                    Products.options_isColor,
-                    Products.options_formId,
-                    Products.options_colorId,
-                )),
-                session.execute(select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)),
-                session.execute(select(
+
+    try:
+        async with session.begin():
+            products_result = await session.execute(select(
+                                                        Products.id,
+                                                        Products.ru_name_name,
+                                                        Products.ru_name_desc,
+                                                        Products.en_name_name,
+                                                        Products.en_name_desc,
+                                                        Products.images,
+                                                        Products.isFrom,
+                                                        Products.preCategory_address,
+                                                        Products.preCategory_ru_name,
+                                                        Products.preCategory_en_name,
+                                                        Products.price,
+                                                        Products.options_isForm,
+                                                        Products.options_isColor,
+                                                        Products.options_formId,
+                                                        Products.options_colorId,
+                                                    )),
+            color_result =   await session.execute(select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)),
+
+            form_result =  await session.execute(select(
                     Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
                 )),
-            ]
 
-            # Выполняем все запросы одновременно
-            products_result, color_result, form_result = await asyncio.gather(*tasks)
-
-        
             color_data = {
-                row[0]: {"id": row[0], "ru_name": row[1], "en_name": row[2], "rgb": row[3]}
-                for row in color_result.all()
-            }
-            form_data = {
-                row[0]: {
-                    "id": row[0],
-                    "ru_name": row[1],
-                    "en_name": row[2],
-                    "changeForm": row[3],
-                    "image": await get_static_img_url(row[4]),
+                    row[0]: {"id": row[0], "ru_name": row[1], "en_name": row[2], "rgb": row[3]}
+                    for row in color_result.all()
                 }
-                for row in form_result.all()
-            }
+            form_data = {
+                    row[0]: {
+                        "id": row[0],
+                        "ru_name": row[1],
+                        "en_name": row[2],
+                        "changeForm": row[3],
+                        "image": await get_static_img_url(row[4]),
+                    }
+                    for row in form_result.all()
+                }
             products = []
             for row in products_result.all():
                 form_ids = [int(id_) for id_ in row[13]] if row[13] else []
@@ -108,30 +102,30 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
                     except KeyError:
                         continue
                 product = {
-                    "id": row[0],
-                    "ru_name": {"name": row[1], "desc": row[2]},
-                    "en_name": {"name": row[3], "desc": row[4]},
-                    "images": [await get_static_img_url(img) for img in row[5]],
-                    "isFrom": row[6],
-                    "preCategory": {
-                        "address": row[7],
-                        "ru_name": row[8],
-                        "en_name": row[9],
-                    },
-                    "price": row[10],
-                    "options": {
-                        "isForm": row[11],
-                        "isColor": row[12],
-                        "form": form_data_,
-                        "color": color_data_,
-                    },
-                }
+                        "id": row[0],
+                        "ru_name": {"name": row[1], "desc": row[2]},
+                        "en_name": {"name": row[3], "desc": row[4]},
+                        "images": [await get_static_img_url(img) for img in row[5]],
+                        "isFrom": row[6],
+                        "preCategory": {
+                            "address": row[7],
+                            "ru_name": row[8],
+                            "en_name": row[9],
+                        },
+                        "price": row[10],
+                        "options": {
+                            "isForm": row[11],
+                            "isColor": row[12],
+                            "form": form_data_,
+                            "color": color_data_,
+                        },
+                    }
                 products.append(product)
             if not products:
                 raise HTTPException(status_code=404, detail="Products not found")
             return {"Products": products}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get(
     "/reviews",
