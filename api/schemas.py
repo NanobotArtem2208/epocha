@@ -31,7 +31,6 @@ class ProductSchema(BaseModel):
     options: OptionsSchema
 
 
-
 class lanNameSchemas(BaseModel):
     en_name: str
     ru_name: str
@@ -93,3 +92,22 @@ class UserCreate(schemas.BaseUserCreate):
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
     is_verified: Optional[bool] = False   
+
+class MetatagsSchema(BaseModel):
+    address: str
+    title: str
+    description: str
+    keywords: str
+
+
+class MetatagsSchemaPatch(BaseModel):
+    title: str
+    description: str
+    keywords: str
+
+
+class MetatagsSchemaPath(BaseModel):
+    address: Union[str, bool]
+
+class MetatagsResponse(BaseModel):
+    metatags: List[MetatagsSchema]

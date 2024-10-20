@@ -16,7 +16,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from typing import Any, List, Optional, Dict, Tuple
 
 from database.session import get_async_session
-from database.models import Products, Reviews, Colors, Forms, Category, preCategory
+from database.models import Products, Reviews, Colors, Forms, Category, preCategory, Metatags
 
 from config.config import settings
 
@@ -27,8 +27,11 @@ from .schemas import (
     Form_schemas,
     Category_schemas,
     PreCategorySchema,
-    
     Form_schemas_patch,
+    MetatagsSchema,
+    MetatagsSchemaPatch,
+    MetatagsSchemaPath,
+    MetatagsResponse,
 )
 from .utils import save_img, random_id, get_static_img_url
 
@@ -509,6 +512,72 @@ async def create_preCategories(
             raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post(
+    "/metatags",
+    summary="Создание метатегов",
+    description="Создает метатеги, сохраняя данные в таблице Metatags",
+    status_code=201,
+)
+async def create_metatags(
+    metatags: List[MetatagsSchema] = Body(...),
+    session: AsyncSession = Depends(get_async_session),
+):
+    async with session:
+        try:
+            metatag_data = [
+                {
+                    "id": random_id(106),
+                    "address": metatag.address,
+                    "title": metatag.title,
+                    "description": metatag.description,
+                    "keywords": metatag.keywords,
+                }
+                for metatag in metatags
+            ]
+            stmt = insert(Metatags)
+            await session.execute(stmt.values(metatag_data))
+            await session.commit()
+            return {"message": "Metatags created successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post(
+    "/getmetategs",
+    summary="Получение метатегов",
+    description="Получает метатеги по их адресу.\n Если `address` установлен в `True`, будут возвращены все метатеги. Если `address` установлен в `False`, будет возвращен пустой список.",
+    status_code=201,
+    response_model=MetatagsResponse,
+)
+async def get_metatags(
+    metatags: MetatagsSchemaPath = Body(...),
+    session: AsyncSession = Depends(get_async_session),
+):
+    async with session:
+        try:
+            if metatags.address is True:
+                stmt = select(
+                    Metatags.address,
+                    Metatags.title,
+                    Metatags.description,
+                    Metatags.keywords,
+                )
+                result = await session.execute(stmt)
+                metatags = result.all()
+                return {"metatags": metatags}
+            
+            if metatags.address is False:
+                return {"metatags": []}    
+            
+            else:
+                stmt = select(Metatags.address, Metatags.title, Metatags.description, Metatags.keywords).where(Metatags.address == metatags.address)
+                result = await session.execute(stmt)
+                metatags = result.all()
+                return {"metatags": metatags}
+            
+        except SQLAlchemyError as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
 #
 # =====delete запросы=====
 #
@@ -625,6 +694,26 @@ async def delete_precategories(
             return {"message": "preCategories deleted successfully"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete(
+    "/metatags",
+    summary="Удаление метатегов",
+    description="Удаляет метатеги из таблицы Metatags по их id",
+    status_code=200,
+)
+async def delete_metatags(
+    metatag: MetatagsSchemaPath  = Body(...),
+    session: AsyncSession = Depends(get_async_session),
+):
+    async with session:
+        try:
+            stmt = delete(Metatags).where(Metatags.address == metatag.address)
+            await session.execute(stmt)
+            await session.commit()
+            return {"message": "Metatags deleted successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
 
 # PUT — полная замена объекта на обновленную версию
 # PATCH — частичное изменение объекта
@@ -814,5 +903,32 @@ async def update_precategories(
             await session.execute(stmt)
             await session.commit()
             return {"message": "Pre-category updated successfully"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.patch(
+    "/metatags/{metatag_address}",
+    summary="Обновление метатегов",
+    description="Обновляет метатеги в таблице Metatags по их id",
+    status_code=200,
+)
+async def update_metatags(
+    metatag_address: str,
+    metatag: MetatagsSchemaPatch = Body(...),
+    session: AsyncSession = Depends(get_async_session),
+):
+
+    async with session:
+        try:
+            update_data = {
+                "title": metatag.title,
+                "description": metatag.description,
+                "keywords": metatag.keywords,
+            }
+            stmt = update(Metatags).where(Metatags.address == metatag_address).values(update_data)
+            await session.execute(stmt)
+            await session.commit()
+            return {"message": "Metatag updated successfully"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))

@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Union
 from sqlalchemy import (
     MetaData,
     Table,
@@ -49,6 +50,7 @@ class Products(Base):
     options_formId: Mapped[list[int]] = mapped_column(JSON)
     options_colorId: Mapped[list[int]] = mapped_column(JSON)
 
+
 class Colors(Base):
     __tablename__ = "colors"
  
@@ -69,6 +71,7 @@ class Forms(Base):
     changeForm: Mapped[float] = mapped_column(Float, default=0.0)
     image: Mapped[str] = mapped_column()
 
+
 class Reviews(Base):
     __tablename__ = "reviews"
    
@@ -77,6 +80,7 @@ class Reviews(Base):
     Description: Mapped[str] = mapped_column(String(4096))
     Rate: Mapped[int] = mapped_column(Integer)
     ProductId: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
 
 class Category(Base):
     __tablename__ = "category"
@@ -87,6 +91,7 @@ class Category(Base):
     en_name: Mapped[str] = mapped_column(String(255))
     preCategory: Mapped[list[int]] = mapped_column(JSON)
 
+
 class preCategory(Base):
     __tablename__ = "preCategory"
 
@@ -95,3 +100,11 @@ class preCategory(Base):
     ru_name: Mapped[str] = mapped_column(String(255))
     en_name: Mapped[str] = mapped_column(String(255))
 
+
+class Metatags(Base):
+    __tablename__ = "metatags"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    address: Mapped[str] = mapped_column(String(255))
+    title: Mapped[str] = mapped_column(String(60))
+    description: Mapped[str] = mapped_column(String(160))
+    keywords: Mapped[str] = mapped_column(String(1024))
