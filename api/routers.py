@@ -12,7 +12,7 @@ from sqlalchemy import and_
 from sqlalchemy import case
 from sqlalchemy.sql.expression import null
 from sqlalchemy.sql import bindparam
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from typing import Any, List, Optional, Dict, Tuple
 
 from database.session import get_async_session
@@ -511,7 +511,6 @@ async def create_preCategories(
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.post(
     "/metatags",
     summary="Создание метатегов",
@@ -524,6 +523,13 @@ async def create_metatags(
 ):
     async with session:
         try:
+            for metatag in metatags:
+                existing_metatag = await session.execute(
+                    select(Metatags).where(Metatags.address == metatag.address)
+                )
+                if existing_metatag.scalars().first() is not None:
+                    raise HTTPException(status_code=400, detail=f"Metatag with address {metatag.address} already exists")
+
             metatag_data = [
                 {
                     "id": random_id(106),
@@ -534,13 +540,17 @@ async def create_metatags(
                 }
                 for metatag in metatags
             ]
+
             stmt = insert(Metatags)
             await session.execute(stmt.values(metatag_data))
             await session.commit()
             return {"message": "Metatags created successfully"}
+        except IntegrityError:
+            await session.rollback()
+            raise HTTPException(status_code=400, detail="Integrity constraint error")
         except Exception as e:
+            await session.rollback()
             raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.post(
     "/getmetategs",
@@ -597,7 +607,7 @@ async def delete_products(
             await session.execute(stmt)
             await session.commit()
             return {"message": "Products deleted successfully"}
-        except Exception as e:
+        except SQLAlchemyError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete(
@@ -616,7 +626,7 @@ async def delete_reviews(
             await session.execute(stmt)
             await session.commit()
             return {"message": "Reviews deleted successfully"}
-        except Exception as e:
+        except SQLAlchemyError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete(
@@ -635,7 +645,7 @@ async def delete_colors(
             await session.execute(stmt)
             await session.commit()
             return {"message": "Colors deleted successfully"}
-        except Exception as e:
+        except SQLAlchemyError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete(
@@ -654,7 +664,7 @@ async def delete_forms(
             await session.execute(stmt)
             await session.commit()
             return {"message": "Forms deleted successfully"}
-        except Exception as e:
+        except SQLAlchemyError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete(
@@ -673,7 +683,7 @@ async def delete_categories(
             await session.execute(stmt)
             await session.commit()
             return {"message": "Categories deleted successfully"}
-        except Exception as e:
+        except SQLAlchemyError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete(
@@ -692,28 +702,34 @@ async def delete_precategories(
             await session.execute(stmt)
             await session.commit()
             return {"message": "preCategories deleted successfully"}
-        except Exception as e:
+        except SQLAlchemyError as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete(
     "/metatags",
     summary="Удаление метатегов",
-    description="Удаляет метатеги из таблицы Metatags по их id",
+    description="Удаляет метатеги из таблицы Metatags по их адресу",
     status_code=200,
 )
 async def delete_metatags(
-    metatag: MetatagsSchemaPath  = Body(...),
+    metatag: MetatagsSchemaPath = Body(...),
     session: AsyncSession = Depends(get_async_session),
 ):
     async with session:
         try:
+            existing_metatag = await session.execute(
+                select(Metatags).where(Metatags.address == metatag.address)
+            )
+            if existing_metatag.scalars().first() is None:
+                raise HTTPException(status_code=404, detail=f"Metatag with address {metatag.address} not found")
+                
             stmt = delete(Metatags).where(Metatags.address == metatag.address)
             await session.execute(stmt)
             await session.commit()
             return {"message": "Metatags deleted successfully"}
-        except Exception as e:
+        except SQLAlchemyError as e:
+            await session.rollback() 
             raise HTTPException(status_code=500, detail=str(e))
-
 
 # PUT — полная замена объекта на обновленную версию
 # PATCH — частичное изменение объекта

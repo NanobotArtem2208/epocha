@@ -104,7 +104,7 @@ class preCategory(Base):
 class Metatags(Base):
     __tablename__ = "metatags"
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    address: Mapped[str] = mapped_column(String(255))
+    address: Mapped[str] = mapped_column(String(255), unique=True)
     title: Mapped[str] = mapped_column(String(60))
     description: Mapped[str] = mapped_column(String(160))
     keywords: Mapped[str] = mapped_column(String(1024))
