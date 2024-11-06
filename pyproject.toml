@@ -26,6 +26,7 @@ fastapi-cache2 = "^0.2.2"
 redis = "^5.0.8"
 requests = "^2.32.3"
 aiohttp = "^3.10.10"
+alembic = "^1.13.3"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
 

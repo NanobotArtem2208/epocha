@@ -45,10 +45,11 @@ class Products(Base):
     preCategory_ru_name: Mapped[str] = mapped_column(String(255))
     preCategory_en_name: Mapped[str] = mapped_column(String(255))
     price: Mapped[float] = mapped_column(Float, default=0.0)
+    # price_en: Mapped[float] = mapped_column(Float, default=0.0)
     options_isForm: Mapped[bool] = mapped_column(Boolean, default=False)
     options_isColor: Mapped[bool] = mapped_column(Boolean, default=False)
     options_formId: Mapped[list[int]] = mapped_column(JSON)
-    options_colorId: Mapped[list[int]] = mapped_column(JSON)
+    options_colorId: Mapped[list[int]] = mapped_column(JSON) 
 
 
 class Colors(Base):
