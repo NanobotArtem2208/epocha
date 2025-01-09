@@ -962,7 +962,6 @@ async def update_products(
             await session.rollback()  # Откат изменений в случае ошибки
             raise HTTPException(status_code=500, detail=str(e))
 
-
 @router.patch(
     "/reviews/{review_id}",
     summary="Обновление отзывов",
