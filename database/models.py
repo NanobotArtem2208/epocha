@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Union
+from typing import List, Optional
 from sqlalchemy import (
     MetaData,
     Table,
@@ -15,7 +15,8 @@ from sqlalchemy import (
     DateTime,
     func
 )
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy import Column, String, Boolean, Integer, TIMESTAMP, ForeignKey 
 
 
@@ -24,11 +25,15 @@ def random_id():
     return int(f"100{uuid.uuid4().int >> (128 - 32)}")
 
 
-class Base(DeclarativeBase):
-    created: Mapped[DateTime] = mapped_column(DateTime, default=func.now())  # UTC
-    updated: Mapped[DateTime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now()
-    )
+class Base(DeclarativeBase, AsyncAttrs): ...
+
+
+product_precategory_association = Table(
+    "product_precategory",
+    Base.metadata,
+    Column("product_id", ForeignKey("products.id"), primary_key=True),
+    Column("precategory_id", ForeignKey("preCategoryProducts.id"), primary_key=True),
+)
 
 
 class Products(Base):
@@ -41,15 +46,20 @@ class Products(Base):
     en_name_desc: Mapped[str] = mapped_column(String(1024))
     images: Mapped[list[str]] = mapped_column(JSON)
     isFrom: Mapped[bool] = mapped_column(Boolean, default=False)
-    preCategory_address: Mapped[str] = mapped_column(String(255))
-    preCategory_ru_name: Mapped[str] = mapped_column(String(255))
-    preCategory_en_name: Mapped[str] = mapped_column(String(255))
-    price: Mapped[float] = mapped_column(Float, default=0.0)
-    # price_en: Mapped[float] = mapped_column(Float, default=0.0)
+
+    # Изменение имени свойства на preCategories
+    preCategory: Mapped["PreCategoryProducts"] = relationship(
+        "PreCategoryProducts",
+        secondary=product_precategory_association,
+        back_populates="products",
+    )
+
+    price_ru: Mapped[float] = mapped_column(Float, default=0.0)
+    price_en: Mapped[float] = mapped_column(Float, default=0.0)
     options_isForm: Mapped[bool] = mapped_column(Boolean, default=False)
     options_isColor: Mapped[bool] = mapped_column(Boolean, default=False)
     options_formId: Mapped[list[int]] = mapped_column(JSON)
-    options_colorId: Mapped[list[int]] = mapped_column(JSON) 
+    options_colorId: Mapped[list[int]] = mapped_column(JSON)
 
 
 class Colors(Base):
@@ -93,13 +103,30 @@ class Category(Base):
     preCategory: Mapped[list[int]] = mapped_column(JSON)
 
 
-class preCategory(Base):
+class PreCategory(Base):
     __tablename__ = "preCategory"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     address: Mapped[str] = mapped_column(String(255))
     ru_name: Mapped[str] = mapped_column(String(255))
     en_name: Mapped[str] = mapped_column(String(255))
+
+
+class PreCategoryProducts(Base):
+    __tablename__ = "preCategoryProducts"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    address: Mapped[str] = mapped_column(String(255))
+    ru_name: Mapped[str] = mapped_column(String(255))
+    en_name: Mapped[str] = mapped_column(String(255))
+
+    # Изменение имени свойства на products
+    products: Mapped[List["Products"]] = relationship(
+        "Products",
+        secondary=product_precategory_association,
+        back_populates="preCategory",
+        lazy="dynamic",
+    )
 
 
 class Metatags(Base):

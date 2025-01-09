@@ -20,14 +20,16 @@ class OptionsSchema(BaseModel):
     form_ids: List[int]
     color_ids: List[int]
 
-
+class PriceSchema(BaseModel):
+    ru_name: float
+    en_name: float
 class ProductSchema(BaseModel):
     ru_name: ProductNameSchema
     en_name: ProductNameSchema
     images: List[str]
     isFrom: bool
-    preCategory: PreCategorySchema
-    price: float
+    preCategory: List[PreCategorySchema]
+    price: PriceSchema
     options: OptionsSchema
 
 

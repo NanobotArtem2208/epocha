@@ -27,6 +27,8 @@ redis = "^5.0.8"
 requests = "^2.32.3"
 aiohttp = "^3.10.10"
 alembic = "^1.13.3"
+bs4 = "^0.0.2"
+aiogram = "^3.16.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
 

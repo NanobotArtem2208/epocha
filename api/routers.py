@@ -16,7 +16,17 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from typing import Any, List, Optional, Dict, Tuple
 
 from database.session import get_async_session
-from database.models import Products, Reviews, Colors, Forms, Category, preCategory, Metatags
+from database.models import (
+    Products,
+    Reviews,
+    Colors,
+    Forms,
+    Category,
+    PreCategory,
+    Metatags,
+    PreCategoryProducts,
+    product_precategory_association,
+)
 
 from config.config import settings
 
@@ -38,9 +48,6 @@ from .utils import save_img, random_id, get_static_img_url
 router = APIRouter(prefix="/api", tags=["api"])
 
 
-#
-# =====get запросы=====
-#
 @router.get(
     "/products",
     summary="Получение всех продуктов",
@@ -49,86 +56,204 @@ router = APIRouter(prefix="/api", tags=["api"])
 )
 async def get_products(session: AsyncSession = Depends(get_async_session)):
     async with session:
-        try:
-            products_stmt = select(
-                Products.id,
-                Products.ru_name_name,
-                Products.ru_name_desc,
-                Products.en_name_name,
-                Products.en_name_desc,
-                Products.images,
-                Products.isFrom,
-                Products.preCategory_address,
-                Products.preCategory_ru_name,
-                Products.preCategory_en_name,
-                Products.price,
-                Products.options_isForm,
-                Products.options_isColor,
-                Products.options_formId,
-                Products.options_colorId,
-            )
-            color_stmt = select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)
-            form_stmt = select(
-                Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
-            )
-            products_result = await session.execute(products_stmt)
-            color_result = await session.execute(color_stmt)
-            form_result = await session.execute(form_stmt)
-            color_data = {
-                row[0]: {"id": row[0], "ru_name": row[1], "en_name": row[2], "rgb": row[3]}
-                for row in color_result.all()
+        # Запросы к таблицам
+        products_stmt = select(
+            Products.id,
+            Products.ru_name_name,
+            Products.ru_name_desc,
+            Products.en_name_name,
+            Products.en_name_desc,
+            Products.images,
+            Products.isFrom,
+            Products.price_ru,
+            Products.price_en,
+            Products.options_isForm,
+            Products.options_isColor,
+            Products.options_formId,
+            Products.options_colorId,
+        )
+        color_stmt = select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)
+        form_stmt = select(
+            Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
+        )
+
+        # Выполнение запросов
+        products_result = await session.execute(products_stmt)
+        color_result = await session.execute(color_stmt)
+        form_result = await session.execute(form_stmt)
+
+        # Обработка данных цветов
+        color_data = {
+            row.id: {
+                "id": row.id,
+                "ru_name": row.ru_name,
+                "en_name": row.en_name,
+                "rgb": row.rgb,
             }
-            form_data = {
-                row[0]: {
-                    "id": row[0],
-                    "ru_name": row[1],
-                    "en_name": row[2],
-                    "changeForm": row[3],
-                    "image": await get_static_img_url(row[4]),
-                }
-                for row in form_result.all()
+            for row in color_result.scalars()
+        }
+
+        # Обработка данных форм
+        form_data = {
+            row.id: {
+                "id": row.id,
+                "ru_name": row.ru_name,
+                "en_name": row.en_name,
+                "changeForm": row.changeForm,
+                "image": await get_static_img_url(row.image),
             }
-            products = []
-            for row in products_result.all():
-                form_ids = [int(id_) for id_ in row[13]] if row[13] else []
-                color_ids = [int(id_) for id_ in row[14]] if row[14] else []
-                form_data_ = []
-                for id_ in form_ids:
-                    try:
-                        form_data_.append(form_data[id_])
-                    except KeyError:
-                        continue
-                color_data_ = []
-                for id_ in color_ids:
-                    try:
-                        color_data_.append(color_data[id_])
-                    except KeyError:
-                        continue
-                product = {
-                    "id": row[0],
-                    "ru_name": {"name": row[1], "desc": row[2]},
-                    "en_name": {"name": row[3], "desc": row[4]},
-                    "images": [await get_static_img_url(img) for img in row[5]],
-                    "isFrom": row[6],
-                    "preCategory": {
-                        "address": row[7],
-                        "ru_name": row[8],
-                        "en_name": row[9],
-                    },
-                    "price": row[10],
-                    "options": {
-                        "isForm": row[11],
-                        "isColor": row[12],
-                        "form": form_data_,
-                        "color": color_data_,
-                    },
-                }
-                products.append(product)
-            if not products:
-                raise HTTPException(status_code=404, detail="Products not found")
-            return {"Products": products}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            for row in form_result.scalars()
+        }
+
+        products = []
+        for row in products_result.all():  # Изменено на all() для получения всех строк
+            # Извлечение идентификаторов форм и цветов
+            form_ids = (
+                [int(id_) for id_ in row.options_formId] if row.options_formId else []
+            )
+            color_ids = (
+                [int(id_) for id_ in row.options_colorId] if row.options_colorId else []
+            )
+
+            # Сбор данных форм
+            form_data_ = [form_data[id_] for id_ in form_ids if id_ in form_data]
+
+            # Сбор данных цветов
+            color_data_ = [color_data[id_] for id_ in color_ids if id_ in color_data]
+
+            # Формирование объекта продукта
+            product = {
+                "id": row.id,
+                "ru_name": {"name": row.ru_name_name, "desc": row.ru_name_desc},
+                "en_name": {"name": row.en_name_name, "desc": row.en_name_desc},
+                "images": [await get_static_img_url(img) for img in row.images],
+                "isFrom": row.isFrom,
+                "price": {"ru_name": row.price_ru, "en_name": row.price_en},
+                "options": {
+                    "isForm": row.options_isForm,
+                    "isColor": row.options_isColor,
+                    "form": form_data_,
+                    "color": color_data_,
+                },
+            }
+            products.append(product)
+
+        # Проверка наличия продуктов
+        if not products:
+            raise HTTPException(status_code=404, detail="Products not found")
+
+        return {"Products": products}
+
+
+@router.get(
+    "/product/{product_id}",
+    summary="Получение товара по ID",
+    description="Получает товар по его уникальному идентификатору.",
+    status_code=200,
+)
+async def get_product_by_id(
+    product_id: int, session: AsyncSession = Depends(get_async_session)
+):
+    async with session:
+        # Запрос к таблице Products по ID
+        product_stmt = select(
+            Products.id,
+            Products.ru_name_name,
+            Products.ru_name_desc,
+            Products.en_name_name,
+            Products.en_name_desc,
+            Products.images,
+            Products.isFrom,
+            Products.price_ru,
+            Products.price_en,
+            Products.options_isForm,
+            Products.options_isColor,
+            Products.options_formId,
+            Products.options_colorId,
+        ).where(Products.id == product_id)
+
+        # Выполнение запроса
+        product_result = await session.execute(product_stmt)
+        product_row = product_result.first()  # Извлекаем первую строку результата
+
+        # Проверка наличия продукта
+        if not product_row:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        # Запросы к таблицам Colors и Forms
+        color_stmt = select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)
+        form_stmt = select(
+            Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
+        )
+
+        # Выполнение запросов
+        color_result = await session.execute(color_stmt)
+        form_result = await session.execute(form_stmt)
+
+        # Обработка данных цветов
+        color_data = {
+            row.id: {
+                "id": row.id,
+                "ru_name": row.ru_name,
+                "en_name": row.en_name,
+                "rgb": row.rgb,
+            }
+            for row in color_result.scalars()
+        }
+
+        # Обработка данных форм
+        form_data = {
+            row.id: {
+                "id": row.id,
+                "ru_name": row.ru_name,
+                "en_name": row.en_name,
+                "changeForm": row.changeForm,
+                "image": await get_static_img_url(row.image),
+            }
+            for row in form_result.scalars()
+        }
+
+        # Извлечение идентификаторов форм и цветов
+        form_ids = (
+            [int(id_) for id_ in product_row.options_formId]
+            if product_row.options_formId
+            else []
+        )
+        color_ids = (
+            [int(id_) for id_ in product_row.options_colorId]
+            if product_row.options_colorId
+            else []
+        )
+
+        # Сбор данных форм
+        form_data_ = [form_data[id_] for id_ in form_ids if id_ in form_data]
+
+        # Сбор данных цветов
+        color_data_ = [color_data[id_] for id_ in color_ids if id_ in color_data]
+
+        # Формирование объекта продукта
+        product = {
+            "id": product_row.id,
+            "ru_name": {
+                "name": product_row.ru_name_name,
+                "desc": product_row.ru_name_desc,
+            },
+            "en_name": {
+                "name": product_row.en_name_name,
+                "desc": product_row.en_name_desc,
+            },
+            "images": [await get_static_img_url(img) for img in product_row.images],
+            "isFrom": product_row.isFrom,
+            "price": {"ru_name": product_row.price_ru, "en_name": product_row.price_en},
+            "options": {
+                "isForm": product_row.options_isForm,
+                "isColor": product_row.options_isColor,
+                "form": form_data_,
+                "color": color_data_,
+            },
+        }
+
+        return {"Product": product}
 
 
 @router.get(
@@ -173,10 +298,10 @@ async def get_category(session: AsyncSession = Depends(get_async_session)):
             category_result = await session.execute(category_stmt)
 
             preCategory_stmt = select(
-                preCategory.id,
-                preCategory.ru_name,
-                preCategory.en_name,
-                preCategory.address,
+                PreCategory.id,
+                PreCategory.ru_name,
+                PreCategory.en_name,
+                PreCategory.address,
             )
             preCategory_result = await session.execute(preCategory_stmt)
 
@@ -216,7 +341,7 @@ async def get_preCategory(session: AsyncSession = Depends(get_async_session)):
     async with session:
         try: 
             stmt = select(
-                preCategory.id, preCategory.ru_name, preCategory.en_name, preCategory.address
+                PreCategory.id, PreCategory.ru_name, PreCategory.en_name, PreCategory.address
             )
             result = await session.execute(stmt)
             preCategories = []
@@ -290,6 +415,7 @@ async def get_forms(session: AsyncSession = Depends(get_async_session)):
 # =====post запросы=====
 #
 
+
 @router.post(
     "/products",
     summary="Создание продуктов",
@@ -300,7 +426,7 @@ async def create_products(
     products: List[ProductSchema] = Body(...),
     session: AsyncSession = Depends(get_async_session),
 ):
-    async with session:
+    async with session.begin():
         try:
             insert_data = []
             for product in products:
@@ -310,25 +436,51 @@ async def create_products(
                 images = product.images
                 isFrom = product.isFrom
                 preCategory = product.preCategory
-                preCategory_address = preCategory.address
-                preCategory_ru_name = preCategory.ru_name
-                preCategory_en_name = preCategory.en_name
-                price = product.price
+                price_ru = product.price.ru_name
+                price_en = product.price.en_name
                 options = product.options
                 options_isForm = options.isForm
                 options_isColor = options.isColor
-                options_form = options.form_ids
-                options_color = options.color_ids
+                options_form_ids = options.form_ids
+                options_color_ids = options.color_ids
 
-                imgs_paths = []
+                # Сохранение изображений
                 imgs_paths_url = []
                 for i, img_data in enumerate(images):
-                    img_path = rf"{settings.STATIC_FOLDER}/img/{product_id}_{i}_product.png"
+                    img_path = (
+                        rf"{settings.STATIC_FOLDER}/img/{product_id}_{i}_product.png"
+                    )
                     img_path_url = rf"static/img/{product_id}_{i}_product.png"
                     await save_img(img_data, img_path)
-                    imgs_paths.append(img_path)
                     imgs_paths_url.append(img_path_url)
 
+                # Сохранение предкатегорий
+                pre_category_ids = []
+                for category in preCategory:
+                    # Проверяем, существует ли предкатегория
+                    existing_category = await session.execute(
+                        select(PreCategoryProducts).where(
+                            PreCategoryProducts.ru_name == category.ru_name,
+                            PreCategoryProducts.en_name == category.en_name,
+                            PreCategoryProducts.address == category.address,
+                        )
+                    )
+                    existing_category = existing_category.scalars().first()
+
+                    if existing_category:
+                        pre_category_ids.append(existing_category.id)
+                    else:
+                        # Создаем новую предкатегорию
+                        new_category = PreCategoryProducts(
+                            address=category.address,
+                            ru_name=category.ru_name,
+                            en_name=category.en_name,
+                        )
+                        session.add(new_category)
+                        await session.flush()  # Сохраняем, чтобы получить ID
+                        pre_category_ids.append(new_category.id)
+
+                # Формирование данных для вставки
                 insert_data.append(
                     {
                         "id": product_id,
@@ -338,22 +490,31 @@ async def create_products(
                         "en_name_desc": en_name.desc,
                         "images": imgs_paths_url,
                         "isFrom": isFrom,
-                        "preCategory_address": preCategory_address,
-                        "preCategory_ru_name": preCategory_ru_name,
-                        "preCategory_en_name": preCategory_en_name,
-                        "price": price,
+                        "price_ru": price_ru,
+                        "price_en": price_en,
                         "options_isForm": options_isForm,
                         "options_isColor": options_isColor,
-                        "options_formId": options_form,
-                        "options_colorId": options_color,
+                        "options_formId": options_form_ids,
+                        "options_colorId": options_color_ids,
                     }
                 )
 
+            # Вставка данных в таблицу Products
             stmt = insert(Products).values(insert_data)
             await session.execute(stmt)
+
+            # Связываем продукты с предкатегориями
+            for product_id in [data["id"] for data in insert_data]:
+                for category_id in pre_category_ids:
+                    stmt = insert(product_precategory_association).values(
+                        product_id=product_id, precategory_id=category_id
+                    )
+                    await session.execute(stmt)
+
             await session.commit()
             return {"message": "Products created successfully"}
         except Exception as e:
+            await session.rollback()  # Откат транзакции в случае ошибки
             raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -504,7 +665,7 @@ async def create_preCategories(
                 }
                 for pre_category in precategories
             ]
-            stmt = insert(preCategory).values(insert_data)
+            stmt = insert(PreCategory).values(insert_data)
             await session.execute(stmt)
             await session.commit()
             return {"message": "Pre-categories created successfully"}
@@ -698,7 +859,7 @@ async def delete_precategories(
 ):
     async with session:
         try:
-            stmt = delete(preCategory).where(preCategory.id.in_(precategory_ids))
+            stmt = delete(PreCategory).where(PreCategory.id.in_(precategory_ids))
             await session.execute(stmt)
             await session.commit()
             return {"message": "preCategories deleted successfully"}
@@ -722,7 +883,7 @@ async def delete_metatags(
             )
             if existing_metatag.scalars().first() is None:
                 raise HTTPException(status_code=404, detail=f"Metatag with address {metatag.address} not found")
-                
+
             stmt = delete(Metatags).where(Metatags.address == metatag.address)
             await session.execute(stmt)
             await session.commit()
@@ -751,43 +912,54 @@ async def update_products(
     product: ProductSchema = Body(...),
     session: AsyncSession = Depends(get_async_session),
 ):
-    async with session:
+    async with session.begin():  # Используем async with для управления сессией
         try:
-            # Get the existing product
+            # Получаем существующий продукт
             existing_product = await session.get(Products, product_id)
             if not existing_product:
                 raise HTTPException(status_code=404, detail="Product not found")
 
-            # Update the product details
+            # Обновляем детали продукта
             existing_product.ru_name_name = product.ru_name.name
             existing_product.ru_name_desc = product.ru_name.desc
             existing_product.en_name_name = product.en_name.name
             existing_product.en_name_desc = product.en_name.desc
             existing_product.isFrom = product.isFrom
-            existing_product.preCategory_address = product.preCategory.address
-            existing_product.preCategory_ru_name = product.preCategory.ru_name
-            existing_product.preCategory_en_name = product.preCategory.en_name
-            existing_product.price = product.price
+
+            # Обработка preCategory
+            if product.preCategory:
+                # Предполагается, что вы хотите обновить только первый элемент
+                existing_product.preCategory.address = product.preCategory.address
+                existing_product.preCategory.ru_name = product.preCategory.ru_name
+                existing_product.preCategory.en_name = product.preCategory.en_name
+
+            existing_product.price_ru = product.price.ru_name
+            existing_product.price_en = product.price.en_name
             existing_product.options_isForm = product.options.isForm
             existing_product.options_isColor = product.options.isColor
             existing_product.options_formId = product.options.form_ids
             existing_product.options_colorId = product.options.color_ids
-            images = product.images
 
-            # Update or add new images
+            images = product.images
+1
+            # Обновление или добавление новых изображений
             if images:
+                existing_product.images.clear()  # Очистка существующих изображений
                 for i, img in enumerate(images):
                     img_path = (
                         rf"{settings.STATIC_FOLDER}/img/{product_id}_{i}_product.png"
                     )
                     img_path_url = rf"static/img/{product_id}_{i}_product.png"
-                    await save_img(await img.read(), img_path)
-                    existing_product.images.append(img_path_url)
+                    await save_img(await img.read(), img_path)  # Сохраняем изображение
+                    existing_product.images.append(
+                        img_path_url
+                    )  # Добавляем путь к изображению
 
-            await session.commit()
+            await session.commit()  # Коммит изменений
             return {"message": "Product updated successfully"}
 
         except Exception as e:
+            await session.rollback()  # Откат изменений в случае ошибки
             raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -913,7 +1085,7 @@ async def update_precategories(
                 "ru_name": precategory.ru_name,
                 "address": precategory.address,
             }
-            stmt = update(preCategory).where(preCategory.id == precategory_id).values(
+            stmt = update(PreCategory).where(PreCategory.id == precategory_id).values(
                 update_data
             )
             await session.execute(stmt)
