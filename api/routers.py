@@ -941,7 +941,7 @@ async def update_products(
             existing_product.options_colorId = product.options.color_ids
 
             images = product.images
-1
+
             # Обновление или добавление новых изображений
             if images:
                 existing_product.images.clear()  # Очистка существующих изображений
