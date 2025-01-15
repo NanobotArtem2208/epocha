@@ -51,12 +51,12 @@ router = APIRouter(prefix="/api", tags=["api"])
 @router.get(
     "/products",
     summary="Получение всех продуктов",
-    description="Получает товары, их цвета и формы из таблиц Products, Colors, Forms.",
+    description="Получает товары, их цвета, формы и предкатегории из таблиц Products, Colors, Forms, и PreCategoryProducts.",
     status_code=200,
 )
 async def get_products(session: AsyncSession = Depends(get_async_session)):
     async with session:
-        # Запросы к таблицам
+       
         products_stmt = select(
             Products.id,
             Products.ru_name_name,
@@ -77,12 +77,25 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
             Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
         )
 
-        # Выполнение запросов
+
+        precategory_stmt = select(
+            PreCategoryProducts.id,
+            PreCategoryProducts.address,
+            PreCategoryProducts.ru_name,
+            PreCategoryProducts.en_name,
+            product_precategory_association.c.product_id,
+        ).join(
+            product_precategory_association,
+            PreCategoryProducts.id == product_precategory_association.c.precategory_id,
+        )
+
+
         products_result = await session.execute(products_stmt)
         color_result = await session.execute(color_stmt)
         form_result = await session.execute(form_stmt)
+        precategory_result = await session.execute(precategory_stmt)
 
-        # Обработка данных цветов
+
         color_data = {
             row.id: {
                 "id": row.id,
@@ -93,7 +106,7 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
             for row in color_result.scalars()
         }
 
-        # Обработка данных форм
+
         form_data = {
             row.id: {
                 "id": row.id,
@@ -105,9 +118,24 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
             for row in form_result.scalars()
         }
 
+  
+        precategory_data = {}
+        for row in precategory_result:
+            product_id = row.product_id
+            if product_id not in precategory_data:
+                precategory_data[product_id] = []
+            precategory_data[product_id].append(
+                {
+                    "id": row.id,
+                    "address": row.address,
+                    "ru_name": row.ru_name,
+                    "en_name": row.en_name,
+                }
+            )
+
+ 
         products = []
-        for row in products_result.all():  # Изменено на all() для получения всех строк
-            # Извлечение идентификаторов форм и цветов
+        for row in products_result.all():
             form_ids = (
                 [int(id_) for id_ in row.options_formId] if row.options_formId else []
             )
@@ -115,13 +143,9 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
                 [int(id_) for id_ in row.options_colorId] if row.options_colorId else []
             )
 
-            # Сбор данных форм
             form_data_ = [form_data[id_] for id_ in form_ids if id_ in form_data]
-
-            # Сбор данных цветов
             color_data_ = [color_data[id_] for id_ in color_ids if id_ in color_data]
 
-            # Формирование объекта продукта
             product = {
                 "id": row.id,
                 "ru_name": {"name": row.ru_name_name, "desc": row.ru_name_desc},
@@ -135,27 +159,26 @@ async def get_products(session: AsyncSession = Depends(get_async_session)):
                     "form": form_data_,
                     "color": color_data_,
                 },
+                "preCategory": precategory_data.get(
+                    row.id, []
+                ),  
             }
             products.append(product)
 
-        # Проверка наличия продуктов
         if not products:
             raise HTTPException(status_code=404, detail="Products not found")
 
         return {"Products": products}
 
-
 @router.get(
-    "/product/{product_id}",
-    summary="Получение товара по ID",
-    description="Получает товар по его уникальному идентификатору.",
+    "/products/{product_id}",
+    summary="Получение продукта по ID",
+    description="Получает товар, его цвета, формы и предкатегории из таблиц Products, Colors, Forms, и PreCategoryProducts по указанному ID.",
     status_code=200,
 )
-async def get_product_by_id(
-    product_id: int, session: AsyncSession = Depends(get_async_session)
-):
+async def get_product_by_id(product_id: int, session: AsyncSession = Depends(get_async_session)):
     async with session:
-        # Запрос к таблице Products по ID
+ 
         product_stmt = select(
             Products.id,
             Products.ru_name_name,
@@ -172,25 +195,34 @@ async def get_product_by_id(
             Products.options_colorId,
         ).where(Products.id == product_id)
 
-        # Выполнение запроса
-        product_result = await session.execute(product_stmt)
-        product_row = product_result.first()  # Извлекаем первую строку результата
-
-        # Проверка наличия продукта
-        if not product_row:
-            raise HTTPException(status_code=404, detail="Product not found")
-
-        # Запросы к таблицам Colors и Forms
         color_stmt = select(Colors.id, Colors.ru_name, Colors.en_name, Colors.rgb)
         form_stmt = select(
             Forms.id, Forms.ru_name, Forms.en_name, Forms.changeForm, Forms.image
         )
 
-        # Выполнение запросов
+      
+        precategory_stmt = select(
+            PreCategoryProducts.id,
+            PreCategoryProducts.address,
+            PreCategoryProducts.ru_name,
+            PreCategoryProducts.en_name,
+            product_precategory_association.c.product_id
+        ).join(
+            product_precategory_association,
+            PreCategoryProducts.id == product_precategory_association.c.precategory_id
+        ).where(product_precategory_association.c.product_id == product_id)
+
+ 
+        product_result = await session.execute(product_stmt)
         color_result = await session.execute(color_stmt)
         form_result = await session.execute(form_stmt)
+        precategory_result = await session.execute(precategory_stmt)
 
-        # Обработка данных цветов
+        product = product_result.first()
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+     
         color_data = {
             row.id: {
                 "id": row.id,
@@ -201,7 +233,7 @@ async def get_product_by_id(
             for row in color_result.scalars()
         }
 
-        # Обработка данных форм
+
         form_data = {
             row.id: {
                 "id": row.id,
@@ -213,47 +245,41 @@ async def get_product_by_id(
             for row in form_result.scalars()
         }
 
-        # Извлечение идентификаторов форм и цветов
-        form_ids = (
-            [int(id_) for id_ in product_row.options_formId]
-            if product_row.options_formId
-            else []
-        )
-        color_ids = (
-            [int(id_) for id_ in product_row.options_colorId]
-            if product_row.options_colorId
-            else []
-        )
+ 
+        precategory_data = [
+            {
+                "id": row.id,
+                "address": row.address,
+                "ru_name": row.ru_name,
+                "en_name": row.en_name,
+            }
+            for row in precategory_result
+        ]
 
-        # Сбор данных форм
+        # Build product object
+        form_ids = [int(id_) for id_ in product.options_formId] if product.options_formId else []
+        color_ids = [int(id_) for id_ in product.options_colorId] if product.options_colorId else []
+
         form_data_ = [form_data[id_] for id_ in form_ids if id_ in form_data]
-
-        # Сбор данных цветов
         color_data_ = [color_data[id_] for id_ in color_ids if id_ in color_data]
 
-        # Формирование объекта продукта
-        product = {
-            "id": product_row.id,
-            "ru_name": {
-                "name": product_row.ru_name_name,
-                "desc": product_row.ru_name_desc,
-            },
-            "en_name": {
-                "name": product_row.en_name_name,
-                "desc": product_row.en_name_desc,
-            },
-            "images": [await get_static_img_url(img) for img in product_row.images],
-            "isFrom": product_row.isFrom,
-            "price": {"ru_name": product_row.price_ru, "en_name": product_row.price_en},
+        product_obj = {
+            "id": product.id,
+            "ru_name": {"name": product.ru_name_name, "desc": product.ru_name_desc},
+            "en_name": {"name": product.en_name_name, "desc": product.en_name_desc},
+            "images": [await get_static_img_url(img) for img in product.images],
+            "isFrom": product.isFrom,
+            "price": {"ru_name": product.price_ru, "en_name": product.price_en},
             "options": {
-                "isForm": product_row.options_isForm,
-                "isColor": product_row.options_isColor,
+                "isForm": product.options_isForm,
+                "isColor": product.options_isColor,
                 "form": form_data_,
                 "color": color_data_,
             },
+            "preCategory": precategory_data,  
         }
 
-        return {"Product": product}
+        return {"Product": product_obj}
 
 
 @router.get(
